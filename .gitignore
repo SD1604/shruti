@@ -1,0 +1,22 @@
+# Environment / secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Vector store (regenerate locally by running the ingestion pipeline)
+vector_store/
+
+# Raw scraped data (regenerate by running fetch scripts — keeps repo small)
+data/raw/
+
+# Node (for future frontend)
+node_modules/
+dist/
+
+# OS / editor
+.DS_Store
+.vscode/

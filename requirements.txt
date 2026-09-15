@@ -1,0 +1,9 @@
+requests
+pydantic
+sentence-transformers
+chromadb
+fastapi
+uvicorn
+langgraph
+huggingface_hub
+pytest
