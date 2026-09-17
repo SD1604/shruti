@@ -64,12 +64,30 @@ python fetch_translation.py   # ~15 sec  — pulls public domain English transla
 python embed_and_load.py      # parses, validates, embeds, and loads into vector_store/
 ```
 
+## Testing the MCP server
+
+Once Phase 1 ingestion has run and `vector_store/` exists locally, you can
+manually test the MCP server's `search_verses` tool using the MCP Inspector:
+
+```bash
+npx @modelcontextprotocol/inspector python mcp_server/server.py
+```
+
+This opens a browser UI where you can call `search_verses` directly with a
+query and see real verse results.
+
+**Do not use `mcp dev mcp_server/server.py`** — that command rebuilds a
+completely separate Python environment from scratch via `uv` every time,
+which is slow and can time out. The command above runs the server using
+your existing activated `venv` instead, which is much faster since
+everything is already installed.
+
 ## Data sources and licensing
 
-| Source | Content | License |
-|---|---|---|
-| [vedicscriptures.github.io](https://vedicscriptures.github.io) | Sanskrit + transliteration only | Public domain (ancient text) |
-| [sacred-texts.com](https://sacred-texts.com/hin/sbg/) | English translation, Swami Swarupananda (1909) | Public Domain / Creative Commons |
+| Source                                                         | Content                                        | License                          |
+| -------------------------------------------------------------- | ---------------------------------------------- | -------------------------------- |
+| [vedicscriptures.github.io](https://vedicscriptures.github.io) | Sanskrit + transliteration only                | Public domain (ancient text)     |
+| [sacred-texts.com](https://sacred-texts.com/hin/sbg/)          | English translation, Swami Swarupananda (1909) | Public Domain / Creative Commons |
 
 This project deliberately excludes modern copyrighted translations (e.g.
 Gita Press, ISKCON/Prabhupada, Swami Nikhilananda editions) from its ingested
