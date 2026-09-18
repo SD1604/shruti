@@ -12,3 +12,5 @@ langgraph
 huggingface_hub
 pytest
 mcp<2
+groq
+python-dotenv

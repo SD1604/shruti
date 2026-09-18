@@ -6,6 +6,8 @@ into it.
 
 from typing import TypedDict
 
+
 class AgentState(TypedDict):
-    query: str
-    retrieved_verses: list[dict]
+    query: str                    # the user's original question
+    retrieved_verses: list[dict]  # filled in by the Retriever node
+    answer: str                   # filled in by the Synthesizer node
