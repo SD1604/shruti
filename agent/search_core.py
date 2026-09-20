@@ -41,6 +41,7 @@ def search_verses(query: str, top_k: int = 3) -> list[dict]:
     for doc, meta in zip(results["documents"][0], results["metadatas"][0]):
         verses.append({
             "text": doc,
+            "sanskrit": meta.get("sanskrit_devanagari"),
             "chapter": meta.get("chapter"),
             "verse_number": meta.get("verse_number"),
             "translator": meta.get("translator"),
