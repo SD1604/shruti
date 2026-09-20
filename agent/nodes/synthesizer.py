@@ -1,8 +1,4 @@
-"""
-The Synthesizer Node — takes the verses the Retriever found and asks the
-LLM to write a clear answer grounded in them, with citations.
-"""
-
+import time
 from agent.state import AgentState
 from agent.llm_client import generate_answer
 
@@ -23,7 +19,9 @@ Write a clear, well-explained answer based only on the verses above. When you re
 
 
 def synthesizer_node(state: AgentState) -> AgentState:
+    start = time.time()
     prompt = build_prompt(state["query"], state["retrieved_verses"])
     answer = generate_answer(prompt)
     state["answer"] = answer
+    print(f"[TIMING] synthesizer_node took {time.time() - start:.2f}s")
     return state

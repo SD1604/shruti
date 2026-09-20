@@ -1,17 +1,30 @@
 """
 The FastAPI app — exposes your LangGraph pipeline as a real HTTP API.
-This is the "kitchen" from our original analogy: it receives an order
-(a question), hands it to the Manager (LangGraph), and serves back
-whatever comes out.
 """
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.schemas import ChatRequest, ChatResponse
 from agent.graph import graph
+from agent.search_core import get_embedder, get_collection
 
-app = FastAPI(title="Shruti API")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Runs once, when the server starts — loads the embedding model and
+    # connects to the vector store BEFORE any user can send a request,
+    # so nobody's first question has to eat that ~27s loading cost.
+    print("Loading embedding model and vector store...")
+    get_embedder()
+    get_collection()
+    print("Ready to serve requests.")
+    yield
+    # (nothing needed on shutdown)
+
+
+app = FastAPI(title="Shruti API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
