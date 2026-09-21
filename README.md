@@ -7,6 +7,15 @@ built to scale to the Vedas, Upanishads, Mahabharata, and Ramayana.
 Built with **LangGraph** (multi-agent orchestration), a custom **MCP server**
 (retrieval layer), **FastAPI** (backend), and **React** (frontend).
 
+## Live Demo
+
+- **App:** https://shruti-eta.vercel.app
+- **Backend API:** https://shruti-backend-hyjo.onrender.com
+
+Note: the backend is hosted on Render's free tier, which spins down after
+15 minutes of inactivity. The first question after idle time may take
+20-30 seconds while it wakes back up — subsequent questions are fast.
+
 ## Why this exists
 
 Most "scripture chatbots" let an LLM paraphrase from memory, which risks
