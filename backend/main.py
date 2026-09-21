@@ -26,7 +26,7 @@ app = FastAPI(title="Shruti API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://shruti-eta.vercel.app"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
