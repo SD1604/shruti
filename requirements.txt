@@ -1,9 +1,5 @@
 requests
 pydantic
-numpy<2
-torch==2.2.2
-transformers==4.41.2
-sentence-transformers==2.7.0
 ftfy
 chromadb
 fastapi
@@ -14,3 +10,4 @@ pytest
 mcp<2
 groq
 python-dotenv
+google-genai

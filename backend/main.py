@@ -8,13 +8,15 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backend.schemas import ChatRequest, ChatResponse
 from agent.graph import graph
-from agent.search_core import get_embedder, get_collection
+from agent.search_core import get_client, get_collection
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("Loading embedding model and vector store...")
-    get_embedder()
+    # Runs once, when the server starts — connects to Gemini and the
+    # vector store before any user can send a request.
+    print("Connecting to Gemini and vector store...")
+    get_client()
     get_collection()
     print("Ready to serve requests.")
     yield
@@ -47,7 +49,7 @@ def chat(request: ChatRequest) -> ChatResponse:
     })
 
     return ChatResponse(
-        answer=result["answer"],  # clean, no warning text mixed in
+        answer=result["answer"],
         validated=result["validated"],
         validation_notes=result["validation_notes"],
         retrieved_verses=result["retrieved_verses"],

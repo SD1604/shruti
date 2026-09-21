@@ -1,48 +1,45 @@
 """
-Embeds verse text locally and loads it into a persistent Chroma vector store.
-
-NOTE ON MODEL CHOICE: Originally used Qwen/Qwen3-Embedding-0.6B, but that
-requires transformers>=4.51.0, which in turn requires torch>=2.5. PyTorch
-dropped support for Intel Macs (x86_64) after version 2.2.2, so Qwen3 cannot
-run on this machine. Switched to a well-established multilingual model that
-works fine with the older, Intel-Mac-compatible transformers/torch versions.
+Embeds verse text using Gemini's embedding API and loads it into a
+persistent Chroma vector store.
 
 Run this after fetch_gita.py and fetch_translation.py have both completed.
 """
 
 import sys
 import os
+import time
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from sentence_transformers import SentenceTransformer
 import chromadb
 from schemas.verse import Verse
 from parse_gita import parse
 from validate import validate_all
+from agent.search_core import embed_text
 
 VECTOR_STORE_PATH = "./vector_store"
 COLLECTION_NAME = "scriptures"
-EMBEDDING_MODEL = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
 
 
-def load_verses(verses: list[Verse], batch_size: int = 32):
-    embedder = SentenceTransformer(EMBEDDING_MODEL)
+def load_verses(verses: list[Verse]):
     client = chromadb.PersistentClient(path=VECTOR_STORE_PATH)
     collection = client.get_or_create_collection(COLLECTION_NAME)
 
-    for i in range(0, len(verses), batch_size):
-        batch = verses[i:i + batch_size]
-        texts = [v.english_translation or v.iast_transliteration for v in batch]
-        embeddings = embedder.encode(texts).tolist()
+    for i, v in enumerate(verses):
+        text = v.english_translation or v.iast_transliteration
+        embedding = embed_text(text, task_type="RETRIEVAL_DOCUMENT")
 
         collection.upsert(
-            ids=[f"{v.text_name}_{v.chapter}_{v.verse_number}" for v in batch],
-            embeddings=embeddings,
-            documents=texts,
-            metadatas=[v.model_dump(exclude_none=True) for v in batch],
+            ids=[f"{v.text_name}_{v.chapter}_{v.verse_number}"],
+            embeddings=[embedding],
+            documents=[text],
+            metadatas=[v.model_dump(exclude_none=True)],
         )
-        print(f"Loaded batch {i // batch_size + 1}")
+
+        if (i + 1) % 25 == 0:
+            print(f"Embedded {i + 1}/{len(verses)} verses")
+
+        time.sleep(0.1)  # stay comfortably within free-tier rate limits
 
     print(f"Done. {collection.count()} verses now in vector store.")
 

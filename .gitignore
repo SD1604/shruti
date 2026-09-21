@@ -7,9 +7,6 @@ __pycache__/
 .venv/
 venv/
 
-# Vector store (regenerate locally by running the ingestion pipeline)
-vector_store/
-
 # Raw scraped data (regenerate by running fetch scripts — keeps repo small)
 data/raw/
 
