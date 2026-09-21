@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import "./App.css";
 
-const API_URL = "http://127.0.0.1:8000/chat";
+const API_URL = "https://shruti-backend-hyjo.onrender.com/chat";
 
 const LOADING_MESSAGES = [
   "Consulting the verses...",
