@@ -4,6 +4,10 @@ import "./App.css";
 
 const API_URL = "https://shruti-backend-hyjo.onrender.com/chat";
 
+function makeConversation() {
+  return { id: Date.now(), title: "New Conversation", messages: [] };
+}
+
 const LOADING_MESSAGES = [
   "Consulting the verses...",
   "Seeking wisdom in the Gita...",
@@ -29,17 +33,6 @@ function useRotatingLoadingText(active) {
   }, [active]);
 
   return LOADING_MESSAGES[index];
-}
-
-function makeConversation() {
-  return { id: Date.now(), title: "New Conversation", messages: [] };
-}
-
-function formatTime() {
-  return new Date().toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 }
 
 function StreamedText({ text, speed = 15 }) {
@@ -94,15 +87,47 @@ function CopyIcon() {
   );
 }
 
+function MenuIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+    >
+      <path d="M3 6h18M3 12h18M3 18h18" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+    >
+      <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function App() {
   const [conversations, setConversations] = useState([makeConversation()]);
   const [activeId, setActiveId] = useState(conversations[0].id);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState(null);
-  const loadingText = useRotatingLoadingText(loading);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [firstResponseReceived, setFirstResponseReceived] = useState(false);
 
   const active = conversations.find((c) => c.id === activeId);
+  const loadingText = useRotatingLoadingText(loading);
 
   function updateActiveConversation(updater) {
     setConversations((prev) =>
@@ -114,6 +139,7 @@ function App() {
     const fresh = makeConversation();
     setConversations((prev) => [fresh, ...prev]);
     setActiveId(fresh.id);
+    setSidebarOpen(false);
   }
 
   async function sendMessage() {
@@ -125,10 +151,7 @@ function App() {
     updateActiveConversation((c) => ({
       ...c,
       title: c.messages.length === 0 ? question.slice(0, 40) : c.title,
-      messages: [
-        ...c.messages,
-        { role: "user", text: question, time: formatTime() },
-      ],
+      messages: [...c.messages, { role: "user", text: question }],
     }));
 
     try {
@@ -151,6 +174,7 @@ function App() {
           },
         ],
       }));
+      setFirstResponseReceived(true);
     } catch (err) {
       updateActiveConversation((c) => ({
         ...c,
@@ -180,7 +204,18 @@ function App() {
 
   return (
     <div className="shell">
-      <aside className="sidebar">
+      {sidebarOpen && (
+        <div
+          className="sidebar-overlay"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
+        <button className="sidebar-close" onClick={() => setSidebarOpen(false)}>
+          <CloseIcon />
+        </button>
+
         <div className="brand">
           <span className="brand-icon">🪷</span>
           <div className="brand-text">
@@ -202,7 +237,10 @@ function App() {
             <div
               key={c.id}
               className={`convo-item ${c.id === activeId ? "active" : ""}`}
-              onClick={() => setActiveId(c.id)}
+              onClick={() => {
+                setActiveId(c.id);
+                setSidebarOpen(false);
+              }}
             >
               {c.title}
             </div>
@@ -225,6 +263,12 @@ function App() {
 
       <main className="main">
         <header className="topbar">
+          <button
+            className="hamburger-btn"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <MenuIcon />
+          </button>
           <div className="topbar-spacer" />
           <nav className="topnav">
             <span>BHAGAVAD GITA</span>
@@ -330,6 +374,13 @@ function App() {
             </div>
           )}
         </div>
+
+        {!firstResponseReceived && (
+          <p className="cold-start-note">
+            First response may take up to 30s while the server wakes up — thank
+            you for your patience 🙏
+          </p>
+        )}
 
         <div className="input-bar">
           <div className="input-pill">
