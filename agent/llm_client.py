@@ -23,7 +23,7 @@ def get_client() -> Groq:
 def generate_answer(prompt: str) -> str:
     client = get_client()
     response = client.chat.completions.create(
-        model="openai/gpt-oss-20b",
+        model="qwen/qwen3.8-27b",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.3,
     )
