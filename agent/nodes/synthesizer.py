@@ -1,4 +1,3 @@
-import time
 from agent.state import AgentState
 from agent.llm_client import generate_answer
 
@@ -15,13 +14,17 @@ VERSES:
 
 QUESTION: {query}
 
-Write a clear, well-explained answer based only on the verses above. When you reference a verse, cite it by chapter and verse number, like (2.47)."""
+Write your answer following these rules:
+1. Use clear, everyday language — avoid academic or overly formal phrasing. If you use a Sanskrit term, briefly explain what it means the first time you use it.
+2. Where a verse has a narrative setting (e.g. Krishna speaking to Arjuna on the battlefield), briefly mention that context.
+3. After explaining what a verse says, briefly connect it to an ordinary, modern-day situation (work, relationships, stress, decision-making).
+4. Cite verses by chapter and verse number, like (2.47).
+
+Keep the answer focused and not overly long."""
 
 
 def synthesizer_node(state: AgentState) -> AgentState:
-    start = time.time()
-    prompt = build_prompt(state["query"], state["retrieved_verses"])
+    prompt = build_prompt(state["refined_query"], state["retrieved_verses"])
     answer = generate_answer(prompt)
     state["answer"] = answer
-    print(f"[TIMING] synthesizer_node took {time.time() - start:.2f}s")
     return state

@@ -1,30 +1,29 @@
 """
-A thin wrapper around the Groq API. Keeping this separate (rather than
-calling Groq directly inside the Synthesizer node) means if we ever swap
-providers later, only this one file needs to change.
+Wrapper around the Gemini API for chat generation (Synthesizer, Citation
+Validator, Query Refiner all call this).
 """
 
 import os
 from dotenv import load_dotenv
-from groq import Groq
+from google import genai
 
 load_dotenv()
 
 _client = None
+MODEL = "gemini-2.5-flash-lite"
 
 
-def get_client() -> Groq:
+def get_client() -> genai.Client:
     global _client
     if _client is None:
-        _client = Groq(api_key=os.environ["GROQ_API_KEY"])
+        _client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
     return _client
 
 
 def generate_answer(prompt: str) -> str:
     client = get_client()
-    response = client.chat.completions.create(
-        model="qwen/qwen3.8-27b",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.3,
+    response = client.models.generate_content(
+        model=MODEL,
+        contents=prompt,
     )
-    return response.choices[0].message.content
+    return response.text
